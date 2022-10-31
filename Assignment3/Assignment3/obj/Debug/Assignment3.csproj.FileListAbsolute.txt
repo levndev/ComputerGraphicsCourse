@@ -1,0 +1,15 @@
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\bin\Debug\Assignment3.exe.config
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\bin\Debug\Assignment3.exe
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\bin\Debug\Assignment3.pdb
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\bin\Debug\org.matheval.dll
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.csproj.AssemblyReference.cache
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.csproj.SuggestedBindingRedirects.cache
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.Form1.resources
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.Properties.Resources.resources
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.csproj.GenerateResource.cache
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.csproj.CoreCompileInputs.cache
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.csproj.CopyComplete
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.exe
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\obj\Debug\Assignment3.pdb
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\bin\Debug\Newtonsoft.Json.dll
+C:\Workspace\ComputerGraphicsCourse\Assignment3\Assignment3\bin\Debug\Newtonsoft.Json.xml
