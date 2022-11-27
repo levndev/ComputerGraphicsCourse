@@ -1,6 +1,3 @@
-using System.Drawing;
-using static System.Net.Mime.MediaTypeNames;
-
 namespace Assignment4
 {
     public partial class Form1 : Form
@@ -12,17 +9,6 @@ namespace Assignment4
         {
             InitializeComponent();
         }
-
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Space)
-            {
-                BarnsleyFern(1000000);
-                var graphics = CreateGraphics();
-                graphics.DrawImageUnscaled(bmp, new Point(0, 0));
-            }
-        }
-
         private void BarnsleyFern(int depth)
         {
             var graphics = CreateGraphics();
@@ -60,14 +46,15 @@ namespace Assignment4
             }
             void put(float x, float y)
             {
-                //graphics.FillRectangle(brush, (int)((x + 2.1820f) * 200), 999 - (int)(y * 100), 1, 1);
                 bmp.SetPixel((int)((x + 2.1820f) * 200), 999 - (int)(y * 100), Color.Green);
             }
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
+            bmp.Dispose();
             bmp = new Bitmap(1000, 1000);
             BarnsleyFern(10000000);
+            bmp.Save("result.png", System.Drawing.Imaging.ImageFormat.Png);
             var graphics = e.Graphics;
             graphics.DrawImageUnscaled(bmp, new Point(0, 0));
         }

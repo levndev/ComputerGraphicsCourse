@@ -1,0 +1,17 @@
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\bin\Release\net6.0-windows\Assignment4.exe
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\bin\Release\net6.0-windows\Assignment4.deps.json
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\bin\Release\net6.0-windows\Assignment4.runtimeconfig.json
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\bin\Release\net6.0-windows\Assignment4.dll
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\bin\Release\net6.0-windows\Assignment4.pdb
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.csproj.AssemblyReference.cache
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.Form1.resources
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.csproj.GenerateResource.cache
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.GeneratedMSBuildEditorConfig.editorconfig
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.AssemblyInfoInputs.cache
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.AssemblyInfo.cs
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.csproj.CoreCompileInputs.cache
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.dll
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\refint\Assignment4.dll
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.pdb
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\Assignment4.genruntimeconfig.cache
+E:\Workspace\ComputerGraphicsCourse\Assignment4\Assignment4\obj\Release\net6.0-windows\ref\Assignment4.dll

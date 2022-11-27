@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Assignment6": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
