@@ -216,16 +216,22 @@ namespace Assignment6
                     var p4 = new Vector4(c1.X, c1.Y, c1.Z, 1) * nModel;
                     result.AddRange(p1.Xyz.ToArray());
                     result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p2.Xyz.ToArray());
                     result.AddRange((p2.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p3.Xyz.ToArray());
                     result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p1.Xyz.ToArray());
                     result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p3.Xyz.ToArray());
                     result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p4.Xyz.ToArray());
                     result.AddRange((p4.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                 }
             }
             return new Mesh(result.ToArray());
@@ -259,16 +265,22 @@ namespace Assignment6
                     var p4 = new Vector4(c1.X, c1.Y, c1.Z, 1) * nModel;
                     result.AddRange(p1.Xyz.ToArray());
                     result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p2.Xyz.ToArray());
                     result.AddRange((p2.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p3.Xyz.ToArray());
                     result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p1.Xyz.ToArray());
                     result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p3.Xyz.ToArray());
                     result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p4.Xyz.ToArray());
                     result.AddRange((p4.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                 }
             }
             return new Mesh(result.ToArray());
@@ -309,16 +321,22 @@ namespace Assignment6
                     var p4 = new Vector4(c1.X, c1.Y, c1.Z, 1) * nModel;
                     result.AddRange(p1.Xyz.ToArray());
                     result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p2.Xyz.ToArray());
                     result.AddRange((p2.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p3.Xyz.ToArray());
                     result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p1.Xyz.ToArray());
                     result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p3.Xyz.ToArray());
                     result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     result.AddRange(p4.Xyz.ToArray());
                     result.AddRange((p4.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
                     if (y == bottom)
                     {
                         result.AddRange(MakeTriangle(current, p2.Xyz, p1.Xyz));
@@ -474,6 +492,17 @@ namespace Assignment6
 
         public static Mesh Cube()
         {
+            var texCoords = new List<Vector2[]>();
+            for (var i = 0; i < 6; i++)
+            {
+                texCoords.Add(new Vector2[]
+                {
+                    Vector2.UnitY,
+                    Vector2.Zero,
+                    Vector2.UnitX,
+                    Vector2.One,
+                });
+            }
             var top = new Vector3[] {
                 new Vector3(0.5f, 0.5f, 0.5f),
                 new Vector3(0.5f, 0.5f, -0.5f),
@@ -481,15 +510,15 @@ namespace Assignment6
                 new Vector3(-0.5f, 0.5f, 0.5f),
             };
             var bottom = top.Select(x => x * new Vector3(1, -1, 1)).ToArray();
-            return new Mesh(Cuboid(top, bottom).ToArray());
+            return new Mesh(Cuboid(top, bottom, null, texCoords.ToArray()).ToArray());
         }
 
-        public static Mesh Parallelepiped(Vector3[] top, Vector3[] bottom, Vector3 offset)
+        public static Mesh Parallelepiped(Vector3[] top, Vector3[] bottom, Vector3 offset, Vector2[][]? texCoords = null)
         {
-            return new Mesh(Cuboid(top, bottom, offset).ToArray());
+            return new Mesh(Cuboid(top, bottom, offset, texCoords).ToArray());
         }
 
-        private static float[] Cuboid(Vector3[] top, Vector3[] bottom, Vector3? offset = null)
+        private static float[] Cuboid(Vector3[] top, Vector3[] bottom, Vector3? offset = null, Vector2[][]? texCoords = null)
         {
             if (offset == null)
                 offset = new Vector3(0, 0, 0);
@@ -502,49 +531,83 @@ namespace Assignment6
                 var p2 = bottom[i];
                 var p3 = i < 3 ? bottom[i + 1] : bottom[0];
                 var p4 = i < 3 ? top[i + 1] : top[0];
-                result.AddRange(MakeRectangle(p1, p2, p3, p4));
+                
+                result.AddRange(MakeRectangle(p1, p2, p3, p4, texCoords?[i]));
             }
-            result.AddRange(MakeRectangle(top));
-            result.AddRange(MakeRectangle(bottom.Reverse().ToArray()));
+            result.AddRange(MakeRectangle(top, texCoords?[4]));
+            result.AddRange(MakeRectangle(bottom.Reverse().ToArray(), texCoords?[5]));
             return result.ToArray();
         }
 
-        private static float[] MakeTriangle(Vector3 p1, Vector3 p2, Vector3 p3)
+        private static float[] MakeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector2[]? texCoords = null)
         {
             var result = new List<float>();
             var normal = Vector3.Cross(p2 - p1, p3 - p1);
             result.AddRange(p1.ToArray());
             result.AddRange(normal.ToArray());
+            if (texCoords != null)
+                result.AddRange(texCoords[0].ToArray());
+            else
+                result.AddRange(Vector2.Zero.ToArray());
             result.AddRange(p2.ToArray());
             result.AddRange(normal.ToArray());
+            if (texCoords != null)
+                result.AddRange(texCoords[1].ToArray());
+            else
+                result.AddRange(Vector2.Zero.ToArray());
             result.AddRange(p3.ToArray());
             result.AddRange(normal.ToArray());
+            if (texCoords != null)
+                result.AddRange(texCoords[2].ToArray());
+            else
+                result.AddRange(Vector2.Zero.ToArray());
             return result.ToArray();
         }
 
-        private static float[] MakeTriangleForSphere(Vector3 p1, Vector3 p2, Vector3 p3)
+        private static float[] MakeTriangleForSphere(Vector3 p1, Vector3 p2, Vector3 p3, Vector2[]? texCoords = null)
         {
             var result = new List<float>();
             result.AddRange(p1.ToArray());
             result.AddRange(p1.Normalized().ToArray());
+            if (texCoords != null)
+                result.AddRange(texCoords[0].ToArray());
+            else
+                result.AddRange(Vector2.Zero.ToArray());
             result.AddRange(p2.ToArray());
             result.AddRange(p2.Normalized().ToArray());
+            if (texCoords != null)
+                result.AddRange(texCoords[1].ToArray());
+            else
+                result.AddRange(Vector2.Zero.ToArray());
             result.AddRange(p3.ToArray());
             result.AddRange(p3.Normalized().ToArray());
+            if (texCoords != null)
+                result.AddRange(texCoords[2].ToArray());
+            else
+                result.AddRange(Vector2.Zero.ToArray());
             return result.ToArray();
         }
 
-        private static float[] MakeRectangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
+        private static float[] MakeRectangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Vector2[]? texCoords = null)
         {
             var result = new List<float>();
-            result.AddRange(MakeTriangle(p1, p2, p3));
-            result.AddRange(MakeTriangle(p1, p3, p4));
+            if (texCoords != null)
+            {
+                result.AddRange(MakeTriangle(p1, p2, p3, texCoords[0..3]));
+                result.AddRange(MakeTriangle(p1, p3, p4, texCoords.Where((v, i) => i != 1).ToArray()));
+            }
+            else
+            {
+                result.AddRange(MakeTriangle(p1, p2, p3));
+                result.AddRange(MakeTriangle(p1, p3, p4));
+            }
+            
             return result.ToArray();
         }
 
-        private static float[] MakeRectangle(Vector3[] points)
+        private static float[] MakeRectangle(Vector3[] points, Vector2[]? texCoords = null)
         {
-            return MakeRectangle(points[0], points[1], points[2], points[3]);
+            return MakeRectangle(points[0], points[1], points[2], points[3], texCoords);
         }
 
         private static Vector3 GetCircleVertexYZ(Vector3 center, float radius, int index, int sides)

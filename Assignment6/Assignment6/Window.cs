@@ -13,6 +13,10 @@ using OpenTK.Mathematics;
 using System.Diagnostics;
 using LearnOpenTK.Common;
 using System.Text.RegularExpressions;
+using StbImageSharp;
+using System.IO;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Assignment6
 {
@@ -27,6 +31,7 @@ namespace Assignment6
         public static float TotalTime;
         private Camera camera;
         private float objectRotationSpeed = 60;
+        private float objectRotationSensitivity = 30;
         private float zoomSpeed = 60;
         public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
@@ -41,8 +46,10 @@ namespace Assignment6
             GL.Enable(EnableCap.DepthTest);
             DefaultShader = new Shader("Shaders/DefaultShader.vs", "Shaders/DefaultShader.fs");
             DefaultShader.Use();
-            camera = new Camera(new Vector3(0, 0, 1.5f), 1);
-            //camera.Pitch = -40;
+            camera = new Camera(new Vector3(0, 1, 1.5f), 1);
+            camera.Pitch = -40;
+            //texture
+            var tex1 = Texture.LoadFromFile("Textures/wall.jpg");
             //camera.Yaw = -125;
             var light = new Light
             {
@@ -65,6 +72,7 @@ namespace Assignment6
                 Diffuse = new Vector3(0.027f, 0.278f, 0.054f),
                 Specular = new Vector3(0),
                 Shininess = 32.0f,
+                DiffuseMap = tex1,
             };
             var material = new Material
             {
@@ -102,7 +110,7 @@ namespace Assignment6
             var regularIcosahedronMesh = MeshGenerator.RegularIcosahedron();
             var ground = new MeshRenderer(new Transform(position: new Vector3(0, -2, 0), scale: new Vector3(10, 0.1f, 10)), groundMaterial, cubeMesh);
             ground.IgnoreUserRotation = true;
-            var cube = new MeshRenderer(new Transform(), material, cubeMesh);
+            var cube = new MeshRenderer(new Transform(), groundMaterial, cubeMesh);
             var pyramid = new MeshRenderer(new Transform(), material, pyramidMesh);
             var trapezoid = new MeshRenderer(new Transform(), material, trapezoidMesh);
             var octahedron = new MeshRenderer(new Transform(), material, octahedronMesh);
@@ -142,19 +150,19 @@ namespace Assignment6
                 //t.Rotation = new Vector3(0, TotalTime * 4, t.Rotation.Z);
             });
             //ak-12
-            var akMaterial = new Material
+            var akMetal = new Material
             {
-                Ambient = new Vector3(0.2f, 0.2f, 0.2f),
-                Diffuse = new Vector3(0.2f, 0.2f, 0.2f),
+                Ambient = new Vector3(0.3f, 0.3f, 0.3f),
+                Diffuse = new Vector3(0.3f, 0.3f, 0.3f),
                 Specular = new Vector3(0.5f, 0.5f, 0.5f),
                 Shininess = 16,
             };
-            var akMaterial2 = new Material
+            var akPolymer = new Material
             {
-                Ambient = new Vector3(1, 0, 0),
-                Diffuse = new Vector3(0, 1, 0),
-                Specular = new Vector3(0.5f, 0.5f, 0.5f),
-                Shininess = 32.0f,
+                Ambient = new Vector3(0.2f, 0.2f, 0.2f),
+                Diffuse = new Vector3(0.2f, 0.2f, 0.2f),
+                Specular = new Vector3(0.2f, 0.2f, 0.2f),
+                Shininess = 256.0f,
             };
             var akParts = new List<MeshRenderer>();
             akParts.Add(ground);
@@ -178,7 +186,7 @@ namespace Assignment6
                     new Vector3(-length, -0.12f, -halfWidth),
                 };
                 var stock = MeshGenerator.Parallelepiped(stockTop, stockBottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, stock));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, stock));
             }
             // butt pad
             {
@@ -199,7 +207,7 @@ namespace Assignment6
                     new Vector3(-length, -0.3f, -halfWidth),
                 };
                 var buttPad = MeshGenerator.Parallelepiped(buttPadTop, buttPadBottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, buttPad));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, buttPad));
             }
             //grip
             {
@@ -209,8 +217,8 @@ namespace Assignment6
                 var gripTop = new Vector3[]
                 {
                     new Vector3(-length, -0.12f, halfWidth),
-                    new Vector3(length / 2, -0.1f, halfWidth),
-                    new Vector3(length / 2, -0.1f, -halfWidth),
+                    new Vector3(length / 2, -0.1f, halfWidth - 0.01f),
+                    new Vector3(length / 2, -0.1f, -halfWidth - 0.01f),
                     new Vector3(-length, -0.12f, -halfWidth),
                 };
                 var gripMiddle = new Vector3[]
@@ -229,8 +237,8 @@ namespace Assignment6
                 };
                 var grip = MeshGenerator.Parallelepiped(gripTop, gripMiddle, new Vector3(offset, 0, 0));
                 var grip1 = MeshGenerator.Parallelepiped(gripMiddle, gripBottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, grip));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, grip1));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, grip));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, grip1));
             }
             //trigger guard
             {
@@ -274,9 +282,9 @@ namespace Assignment6
                 var triggerGuard = MeshGenerator.Parallelepiped(left, middle, new Vector3(offset, 0, 0));
                 var triggerGuard1 = MeshGenerator.Parallelepiped(middle, right, new Vector3(offset, 0, 0));
                 var triggerGuard2 = MeshGenerator.Parallelepiped(top, bottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, triggerGuard));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, triggerGuard1));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, triggerGuard2));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, triggerGuard));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, triggerGuard1));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, triggerGuard2));
             }
             //trigger
             {
@@ -297,10 +305,10 @@ namespace Assignment6
                 var trigger1 = MeshGenerator.Parallelepiped(section1, section2, new Vector3(offset, 0, 0));
                 var trigger2 = MeshGenerator.Parallelepiped(section2, section3, new Vector3(offset, 0, 0));
                 var trigger3 = MeshGenerator.Parallelepiped(section3, bottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, trigger));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, trigger1));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, trigger2));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, trigger3));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, trigger));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, trigger1));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, trigger2));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, trigger3));
             }
             //magazine
             {
@@ -309,23 +317,74 @@ namespace Assignment6
                 var skew = 0.05f;
                 var magazineTop = new Vector3[]
                 {
-                    new Vector3(-length, -0.1f, halfWidth),
-                    new Vector3(0, -0.1f, halfWidth),
-                    new Vector3(0, -0.1f, -halfWidth),
-                    new Vector3(-length, -0.1f, -halfWidth),
+                    new Vector3(-length, -0.1f, halfWidth - 0.01f),
+                    new Vector3(0, -0.1f, halfWidth - 0.01f),
+                    new Vector3(0, -0.1f, -halfWidth + 0.01f),
+                    new Vector3(-length, -0.1f, -halfWidth + 0.01f),
                 };
                 var magazineBottom = new Vector3[]
                 {
-                    new Vector3(-length + skew, -0.45f, halfWidth),
-                    new Vector3(skew, -0.4f, halfWidth),
-                    new Vector3(skew, -0.4f, -halfWidth),
-                    new Vector3(-length + skew, -0.45f, -halfWidth),
+                    new Vector3(-length + skew, -0.45f, halfWidth - 0.01f),
+                    new Vector3(skew, -0.4f, halfWidth - 0.01f),
+                    new Vector3(skew, -0.4f, -halfWidth + 0.01f),
+                    new Vector3(-length + skew, -0.45f, -halfWidth + 0.01f),
                 };
                 var magazine = MeshGenerator.Parallelepiped(magazineTop, magazineBottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, magazine));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, magazine));
             }
             //lower receiver
             {
+                var mat = new Material
+                {
+                    Ambient = new Vector3(0.3f, 0.3f, 0.3f),
+                    Diffuse = new Vector3(0.3f, 0.3f, 0.3f),
+                    Specular = new Vector3(0.5f, 0.5f, 0.5f),
+                    Shininess = 16,
+                    DiffuseMap = Texture.LoadFromFile("Textures/ak_tex.png"),
+                };
+                var texCoords = new List<Vector2[]>();
+                texCoords.Add(new Vector2[]
+                {
+                    new Vector2(0.23f, 0.15f),
+                    Vector2.Zero,
+                    new Vector2(0.8f, 0),
+                    new Vector2(0.8f, 0.4f),
+                });
+                texCoords.Add(new Vector2[]
+                {
+                    new Vector2(0, 0.4f),
+                    Vector2.Zero,
+                    new Vector2(0.8f, 0),
+                    new Vector2(0.8f, 0.4f),
+                });
+                texCoords.Add(new Vector2[]
+                {
+                    new Vector2(0.8f, 0.4f),
+                    new Vector2(0.8f, 0),
+                    Vector2.Zero,
+                    new Vector2(0, 0.4f),
+                });
+                texCoords.Add(new Vector2[]
+                {
+                    new Vector2(0, 0.4f),
+                    Vector2.Zero,
+                    new Vector2(0.8f, 0),
+                    new Vector2(0.8f, 0.4f),
+                });
+                texCoords.Add(new Vector2[]
+                {
+                    new Vector2(0, 0.4f),
+                    Vector2.Zero,
+                    new Vector2(0.8f, 0),
+                    new Vector2(0.8f, 0.4f),
+                });
+                texCoords.Add(new Vector2[]
+                {
+                    new Vector2(0, 0.4f),
+                    Vector2.Zero,
+                    new Vector2(0.8f, 0),
+                    new Vector2(0.8f, 0.4f),
+                });
                 var length = 0.55f;
                 var bottom = -0.1f;
                 var lowerReceiverTop = new Vector3[]
@@ -342,18 +401,18 @@ namespace Assignment6
                     new Vector3(0, bottom, -halfWidth),
                     new Vector3(-length, bottom - 0.02f, -halfWidth),
                 };
-                var lowerReceiver = MeshGenerator.Parallelepiped(lowerReceiverTop, lowerReceiverBottom, new Vector3(0, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, lowerReceiver));
+                var lowerReceiver = MeshGenerator.Parallelepiped(lowerReceiverTop, lowerReceiverBottom, new Vector3(0, 0, 0), texCoords.ToArray());
+                akParts.Add(new MeshRenderer(new Transform(), mat, lowerReceiver));
             }
             //dust cover
             {
                 var length = 0.55f;
                 var dustCoverTop = new Vector3[]
                 {
-                    new Vector3(-length + 0.05f, 0.1f, halfWidth / 2),
-                    new Vector3(0, 0.1f, halfWidth / 2),
-                    new Vector3(0, 0.1f, -halfWidth / 2),
-                    new Vector3(-length + 0.05f, 0.1f, -halfWidth / 2),
+                    new Vector3(-length + 0.05f, 0.08f, halfWidth / 2),
+                    new Vector3(0, 0.08f, halfWidth / 2),
+                    new Vector3(0, 0.08f, -halfWidth / 2),
+                    new Vector3(-length + 0.05f, 0.08f, -halfWidth / 2),
                 };
                 var dustCoverBottom = new Vector3[]
                 {
@@ -363,7 +422,7 @@ namespace Assignment6
                     new Vector3(-length, 0, -halfWidth),
                 };
                 var dustCover = MeshGenerator.Parallelepiped(dustCoverTop, dustCoverBottom, new Vector3(0, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, dustCover));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, dustCover));
             }
             //dust cover rail
             {
@@ -371,20 +430,20 @@ namespace Assignment6
                 var step = 0.01f;
                 var baseTop = new Vector3[]
                 {
-                    new Vector3(-length, 0.11f, halfWidth / 1.5f),
-                    new Vector3(0.34f, 0.11f, halfWidth / 1.5f),
-                    new Vector3(0.34f, 0.11f, -halfWidth / 1.5f),
-                    new Vector3(-length, 0.11f, -halfWidth / 1.5f),
+                    new Vector3(-length, 0.09f, halfWidth / 1.5f),
+                    new Vector3(0.34f, 0.09f, halfWidth / 1.5f),
+                    new Vector3(0.34f, 0.09f, -halfWidth / 1.5f),
+                    new Vector3(-length, 0.09f, -halfWidth / 1.5f),
                 };
                 var baseBottom = new Vector3[]
                 {
-                    new Vector3(-length, 0.1f, halfWidth / 2),
-                    new Vector3(0.34f, 0.1f, halfWidth / 2),
-                    new Vector3(0.34f, 0.1f, -halfWidth / 2),
-                    new Vector3(-length, 0.1f, -halfWidth / 2),
+                    new Vector3(-length, 0.08f, halfWidth / 2),
+                    new Vector3(0.34f, 0.08f, halfWidth / 2),
+                    new Vector3(0.34f, 0.08f, -halfWidth / 2),
+                    new Vector3(-length, 0.08f, -halfWidth / 2),
                 };
                 var railBase = MeshGenerator.Parallelepiped(baseTop, baseBottom, new Vector3(0, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, railBase));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, railBase));
                 var segmentTop = new Vector3[]
                 {
                     new Vector3(-step / 2, 0.01f, halfWidth / 3),
@@ -395,8 +454,8 @@ namespace Assignment6
                 var segmentBottom = segmentTop.Select(i => new Vector3(i.X, 0, MathF.Sign(i.Z) * halfWidth / 1.5f)).ToArray();
                 for (var x = -0.5f + step / 2; x < 0.34f; x += step * 2)
                 {
-                    var segment = MeshGenerator.Parallelepiped(segmentTop, segmentBottom, new Vector3(x, 0.11f, 0));
-                    akParts.Add(new MeshRenderer(new Transform(), akMaterial, segment));
+                    var segment = MeshGenerator.Parallelepiped(segmentTop, segmentBottom, new Vector3(x, 0.09f, 0));
+                    akParts.Add(new MeshRenderer(new Transform(), akMetal, segment));
                 }
             }
             //handguard
@@ -404,10 +463,10 @@ namespace Assignment6
                 var length = 0.34f;
                 var handGuardTop = new Vector3[]
                 {
-                    new Vector3(0, 0.1f, halfWidth / 2f),
-                    new Vector3(length, 0.1f, halfWidth / 2f),
-                    new Vector3(length, 0.1f, -halfWidth / 2f),
-                    new Vector3(0, 0.1f, -halfWidth / 2f),
+                    new Vector3(0, 0.08f, halfWidth / 2f),
+                    new Vector3(length, 0.08f, halfWidth / 2f),
+                    new Vector3(length, 0.08f, -halfWidth / 2f),
+                    new Vector3(0, 0.08f, -halfWidth / 2f),
                 };
                 var handGuardSection1 = new Vector3[]
                 {
@@ -433,9 +492,9 @@ namespace Assignment6
                 var handGuard1 = MeshGenerator.Parallelepiped(handGuardTop, handGuardSection1, new Vector3(0, 0, 0));
                 var handGuard2 = MeshGenerator.Parallelepiped(handGuardSection1, handGuardSection2, new Vector3(0, 0, 0));
                 var handGuard3 = MeshGenerator.Parallelepiped(handGuardSection2, handGuardBottom, new Vector3(0, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, handGuard1));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, handGuard2));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, handGuard3));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, handGuard1));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, handGuard2));
+                akParts.Add(new MeshRenderer(new Transform(), akPolymer, handGuard3));
             }
             //barrel
             {
@@ -445,7 +504,7 @@ namespace Assignment6
                 var left = new Vector3(offset, -0.05f, 0);
                 var right = new Vector3(offset + length, -0.05f, 0);
                 var barrel = MeshGenerator.CylinderX(40, radius, radius, left, right);
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, barrel));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, barrel));
             }
             //gas tube
             {
@@ -455,7 +514,7 @@ namespace Assignment6
                 var left = new Vector3(offset, 0.055f, 0);
                 var right = new Vector3(offset + length, 0.055f, 0);
                 var gasTube = MeshGenerator.CylinderX(40, radius, radius, left, right);
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, gasTube));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, gasTube));
             }
             //gas tube connector
             {
@@ -470,7 +529,7 @@ namespace Assignment6
                 };
                 var bottom = top.Select(i => new Vector3(i.X, -0.055f, i.Z)).ToArray();
                 var gasTubeConnector = MeshGenerator.Parallelepiped(top, bottom, new Vector3(offset, 0, 0));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, gasTubeConnector));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, gasTubeConnector));
             }
             //muzzle break
             {
@@ -480,11 +539,11 @@ namespace Assignment6
                 var left = new Vector3(offset, -0.05f, 0);
                 var right = new Vector3(offset + length, -0.05f, 0);
                 var muzzle = MeshGenerator.CylinderX(40, 0.035f, radius, left, left + new Vector3(0.03f, 0, 0));
-                var muzzle1 = MeshGenerator.CylinderX(40, radius, radius, left + new Vector3(0.03f, 0, 0), right - new Vector3(0.03f, 0, 0));
-                var muzzle2 = MeshGenerator.CylinderX(40, radius, 0.035f, right - new Vector3(0.03f, 0, 0), right);
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, muzzle));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, muzzle1));
-                akParts.Add(new MeshRenderer(new Transform(), akMaterial, muzzle2));
+                var muzzle1 = MeshGenerator.CylinderX(40, radius, radius, left + new Vector3(0.03f, 0, 0), right - new Vector3(0.04f, 0, 0));
+                var muzzle2 = MeshGenerator.CylinderX(40, radius, 0.035f, right - new Vector3(0.04f, 0, 0), right);
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, muzzle));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, muzzle1));
+                akParts.Add(new MeshRenderer(new Transform(), akMetal, muzzle2));
             }
             Scenes.Add(new Scene(light, camera, akParts.ToArray()));
             //
@@ -572,9 +631,9 @@ namespace Assignment6
                 Scenes[CurrentScene].Load();
             }
             if (mInput.IsButtonDown(MouseButton.Left))
-                RotateCurrentScene(new Vector3(mInput.Delta.Y * objectRotationSpeed * (float)e.Time, mInput.Delta.X * objectRotationSpeed * (float)e.Time, 0));
+                RotateCurrentScene(new Vector3(mInput.Delta.Y * objectRotationSensitivity * (float)e.Time, mInput.Delta.X * objectRotationSensitivity * (float)e.Time, 0));
             else if (mInput.IsButtonDown(MouseButton.Right))
-                RotateCurrentScene(new Vector3(0, mInput.Delta.X * objectRotationSpeed * (float)e.Time, mInput.Delta.Y * objectRotationSpeed * (float)e.Time));
+                RotateCurrentScene(new Vector3(0, mInput.Delta.X * objectRotationSensitivity * (float)e.Time, mInput.Delta.Y * objectRotationSensitivity * (float)e.Time));
             if (mInput.ScrollDelta.Y != 0)
                 Zoom(-mInput.ScrollDelta.Y * zoomSpeed * (float)e.Time);
             Scenes[CurrentScene].Update(e.Time);

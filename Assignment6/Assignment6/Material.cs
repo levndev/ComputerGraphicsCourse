@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using StbImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace Assignment6
         public Vector3 Diffuse;
         public Vector3 Specular;
         public float Shininess;
+        public Texture DiffuseMap;
     }
 }

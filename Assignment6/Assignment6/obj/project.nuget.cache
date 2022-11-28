@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uUG0xljzI9tM/dpRvSEWhsgqq0c28Bxzk3O1mXHrEEGMK8CkrtlMp7njPJ3+FgU5BAkor2wekuYIeVSgVu/Kqg==",
+  "dgSpecHash": "YcQOZY1h8M+OPhSJWmlX4uQ1Syky32lHVpaKcLKNxU4ZfXaIprXqqTAr63IasvJ31wUUVGYGakaf8JtNOu+PIA==",
   "success": true,
-  "projectFilePath": "E:\\Workspace\\ComputerGraphicsCourse\\Assignment6\\Assignment6\\Assignment6.csproj",
+  "projectFilePath": "C:\\Workspace\\ComputerGraphicsCourse\\Assignment6\\Assignment6\\Assignment6.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Lev\\.nuget\\packages\\opentk\\4.7.5\\opentk.4.7.5.nupkg.sha512",
     "C:\\Users\\Lev\\.nuget\\packages\\opentk.compute\\4.7.5\\opentk.compute.4.7.5.nupkg.sha512",
@@ -15,6 +15,7 @@
     "C:\\Users\\Lev\\.nuget\\packages\\opentk.windowing.common\\4.7.5\\opentk.windowing.common.4.7.5.nupkg.sha512",
     "C:\\Users\\Lev\\.nuget\\packages\\opentk.windowing.desktop\\4.7.5\\opentk.windowing.desktop.4.7.5.nupkg.sha512",
     "C:\\Users\\Lev\\.nuget\\packages\\opentk.windowing.graphicslibraryframework\\4.7.5\\opentk.windowing.graphicslibraryframework.4.7.5.nupkg.sha512",
+    "C:\\Users\\Lev\\.nuget\\packages\\stbimagesharp\\2.27.13\\stbimagesharp.2.27.13.nupkg.sha512",
     "C:\\Users\\Lev\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
   ],
   "logs": []

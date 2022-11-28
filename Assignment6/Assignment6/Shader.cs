@@ -82,6 +82,17 @@ namespace Assignment6
             GL.Uniform3(Uniforms["material.specular"], value.Specular);
             CheckUniform("material.shininess");
             GL.Uniform1(Uniforms["material.shininess"], value.Shininess);
+            if (value.DiffuseMap != null)
+            {
+                value.DiffuseMap.Use(TextureUnit.Texture0);
+                CheckUniform("material.diffuseMap");
+                GL.Uniform1(Uniforms["material.diffuseMap"], 0);
+                SetBool("useTexture", true);
+            }
+            else
+            {
+                SetBool("useTexture", false);
+            }
         }
 
         public void SetLight(Light value)
@@ -106,6 +117,12 @@ namespace Assignment6
         {
             CheckUniform(name);
             GL.Uniform1(Uniforms[name], value);
+        }
+
+        public void SetBool(string name, bool value)
+        {
+            CheckUniform(name);
+            GL.Uniform1(Uniforms[name], Convert.ToInt32(value));
         }
 
         public void SetUniform4(string name, Vector4 value)
