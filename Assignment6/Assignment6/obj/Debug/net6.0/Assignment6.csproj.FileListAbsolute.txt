@@ -59,3 +59,4 @@ C:\Workspace\ComputerGraphicsCourse\Assignment6\Assignment6\obj\Debug\net6.0\Ass
 C:\Workspace\ComputerGraphicsCourse\Assignment6\Assignment6\obj\Debug\net6.0\Assignment6.genruntimeconfig.cache
 C:\Workspace\ComputerGraphicsCourse\Assignment6\Assignment6\obj\Debug\net6.0\ref\Assignment6.dll
 C:\Workspace\ComputerGraphicsCourse\Assignment6\Assignment6\bin\Debug\net6.0\StbImageSharp.dll
+E:\Workspace\ComputerGraphicsCourse\Assignment6\Assignment6\bin\Debug\net6.0\StbImageSharp.dll

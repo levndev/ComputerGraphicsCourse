@@ -10,7 +10,7 @@ namespace Assignment6
 {
     internal class MeshRenderer : Renderer
     {
-        public bool IgnoreUserRotation = false;
+        public bool IgnoreUserTransformations = false;
         public Action<Transform> Func;
         public Transform Transform;
         private Matrix4 Model;

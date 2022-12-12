@@ -15,10 +15,11 @@ namespace Assignment6
             public int vertexCount;
             public int VAO;
             public PrimitiveType PrimitiveType;
+            private const int VertexArgumentCount = 8;
             public void Render()
             {
                 GL.BindVertexArray(VAO);
-                GL.DrawArrays(PrimitiveType, 0, vertexCount);
+                GL.DrawArrays(PrimitiveType, 0, vertexCount / VertexArgumentCount);
             }
         }
         private List<SubMesh> subMeshes;

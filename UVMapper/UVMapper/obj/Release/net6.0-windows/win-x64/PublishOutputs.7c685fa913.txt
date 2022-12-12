@@ -1,0 +1,2 @@
+E:\Workspace\ComputerGraphicsCourse\UVMapper\UVMapper\bin\Release\net6.0-windows\publish\win-x64\UVMapper.pdb
+E:\Workspace\ComputerGraphicsCourse\UVMapper\UVMapper\bin\Release\net6.0-windows\publish\win-x64\UVMapper.exe

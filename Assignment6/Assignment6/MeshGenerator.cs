@@ -183,13 +183,13 @@ namespace Assignment6
             //    return result;
             //}
         }
-        public static Mesh Torus(int sides, int sections, float radius, float thickness)
+        public static Mesh Torus(int sectionSides, int sections, float radius, float thickness)
         {
             var r = radius;
             var circle = new List<Vector3>();
-            for (var i = 0; i < sides; i++)
+            for (var i = 0; i < sectionSides; i++)
             {
-                circle.Add(GetCircleVertexYZ(Vector3.Zero, thickness, i, sides));
+                circle.Add(GetCircleVertexYZ(Vector3.Zero, thickness, i, sectionSides));
             }
             var result = new List<float>();
             for (var i = 0; i < sections; i++)
@@ -237,14 +237,68 @@ namespace Assignment6
             return new Mesh(result.ToArray());
         }
 
-        public static Mesh CustomTorusXY(int sections, Vector2 radius, List<Vector3> shape, Vector3 offset)
+        public static Mesh TorusYZ(int sectionSides, int sections, float radius, float thickness, Vector3? offset = null)
         {
             var r = radius;
+            var circle = new List<Vector3>();
+            for (var i = 0; i < sectionSides; i++)
+            {
+                circle.Add(GetCircleVertexXZ(Vector3.Zero, thickness, i, sectionSides));
+            }
             var result = new List<float>();
             for (var i = 0; i < sections; i++)
             {
-                var t = 2 * MathF.PI * i / sections;
-                var tNext = 2 * MathF.PI * (i + 1) / sections;
+                var t = -2 * MathF.PI * i / sections;
+                var tNext = -2 * MathF.PI * (i + 1) / sections;
+                var current = new Vector3(0, MathF.Sin(t) * r, MathF.Cos(t) * r) + offset ?? Vector3.Zero;
+                var next = new Vector3(0, MathF.Sin(tNext) * r, MathF.Cos(tNext) * r) + offset ?? Vector3.Zero;
+                Matrix4.CreateFromQuaternion(Quaternion.FromEulerAngles(new Vector3(-t, 0, 0)), out var rotationMatrix);
+                Matrix4.CreateFromQuaternion(Quaternion.FromEulerAngles(new Vector3(-tNext, 0, 0)), out var rotationMatrix2);
+                var cModel = Matrix4.Identity;
+                cModel *= rotationMatrix;
+                cModel *= Matrix4.CreateTranslation(current);
+                var nModel = Matrix4.Identity;
+                nModel *= rotationMatrix2;
+                nModel *= Matrix4.CreateTranslation(next);
+                for (var j = 0; j < circle.Count; j++)
+                {
+                    var c1 = circle[j];
+                    var c2 = j < circle.Count - 1 ? circle[j + 1] : circle[0];
+                    var p1 = new Vector4(c1.X, c1.Y, c1.Z, 1) * cModel;
+                    var p2 = new Vector4(c2.X, c2.Y, c2.Z, 1) * cModel;
+                    var p3 = new Vector4(c2.X, c2.Y, c2.Z, 1) * nModel;
+                    var p4 = new Vector4(c1.X, c1.Y, c1.Z, 1) * nModel;
+                    result.AddRange(p1.Xyz.ToArray());
+                    result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
+                    result.AddRange(p2.Xyz.ToArray());
+                    result.AddRange((p2.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
+                    result.AddRange(p3.Xyz.ToArray());
+                    result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
+                    result.AddRange(p1.Xyz.ToArray());
+                    result.AddRange((p1.Xyz - current).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
+                    result.AddRange(p3.Xyz.ToArray());
+                    result.AddRange((p3.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
+                    result.AddRange(p4.Xyz.ToArray());
+                    result.AddRange((p4.Xyz - next).Normalized().ToArray());
+                    result.AddRange(Vector2.Zero.ToArray());
+                }
+            }
+            return new Mesh(result.ToArray());
+        }
+
+        public static Mesh CustomTorusXY(int sectionSides, Vector2 radius, List<Vector3> shape, Vector3 offset)
+        {
+            var r = radius;
+            var result = new List<float>();
+            for (var i = 0; i < sectionSides; i++)
+            {
+                var t = 2 * MathF.PI * i / sectionSides;
+                var tNext = 2 * MathF.PI * (i + 1) / sectionSides;
                 var current = new Vector3(MathF.Cos(t) * r.X, MathF.Sin(t) * r.Y, 0) + offset;
                 var next = new Vector3(MathF.Cos(tNext) * r.X, MathF.Sin(tNext) * r.Y, 0) + offset;
                 Matrix4.CreateFromQuaternion(Quaternion.FromEulerAngles(new Vector3(0, 0, t)), out var rotationMatrix);
@@ -389,10 +443,10 @@ namespace Assignment6
                 return new Vector3(MathF.Cos(u) * MathF.Sin(v) * r, MathF.Cos(v) * r, MathF.Sin(u) * MathF.Sin(v) * r);
             }
         }
-        public static Mesh Cylinder(int sides, float topRadius, float bottomRadius)
+        public static Mesh Cylinder(int sides, float topRadius, float bottomRadius, float topY =0.5f, float bottomY = -0.5f, Vector3? offset = null)
         {
-            var top = new Vector3(0, 0.5f, 0);
-            var bottom = new Vector3(0, -0.5f, 0);
+            var top = new Vector3(0, topY, 0) + offset ?? Vector3.Zero;
+            var bottom = new Vector3(0, bottomY, 0) + offset ?? Vector3.Zero;
             var result = new List<float>();
             for (var i = 0; i < sides; i++)
             {
