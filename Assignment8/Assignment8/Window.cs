@@ -195,7 +195,7 @@ namespace Assignment8
             rtShader.SetStructArray(spheres, "Spheres", "SphereCount");
             rtShader.SetStructArray(planes, "Planes", "PlaneCount");
             rtShader.SetStructArray(lights, "Lights", "LightCount");
-            rtShader.SetInt("Depth", 16);
+            rtShader.SetInt("Depth", 3);
             rtShader.SetVector3("AmbientLight", AmbientLight);
             rtShader.SetVector3("BackgroundColor", new Vector3(0.2f, 0.2f, 0.2f));
             rtShader.SetFloat("Time", (float)stopwatch.Elapsed.TotalSeconds);

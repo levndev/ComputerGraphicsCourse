@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JZtiAMcOMIHlGvmOQGqlyaToJC2YflW4NbewJmSYCYfSi8egHijAv16CMnlNo1j64sQDphXSRRRiaQQ/qHxGMA==",
+  "dgSpecHash": "I11kyqxSqHoaSx5iYbKKjtbDINVF5tUQkPh09Xrn/JKtOXbfCSZAA/9OhLXUBEkjnnfexfu/fDyjcUUk4yEo1w==",
   "success": true,
-  "projectFilePath": "E:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj",
+  "projectFilePath": "C:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Lev\\.nuget\\packages\\opentk\\4.7.5\\opentk.4.7.5.nupkg.sha512",
     "C:\\Users\\Lev\\.nuget\\packages\\opentk.compute\\4.7.5\\opentk.compute.4.7.5.nupkg.sha512",

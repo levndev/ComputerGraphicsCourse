@@ -13,12 +13,12 @@ namespace Assignment8
                 Size = new Vector2i(800, 800),
                 Title = "Title",
                 NumberOfSamples = 8,
-                WindowState = WindowState.Fullscreen,
+                //WindowState = WindowState.Fullscreen,
             };
             var gameWindowSettings = new GameWindowSettings()
             {
-                RenderFrequency = 100,
-                UpdateFrequency = 100,
+                RenderFrequency = 30,
+                UpdateFrequency = 20,
             };
             using (var window = new Window(GameWindowSettings.Default, nativeWindowSettings))
             {

@@ -186,13 +186,21 @@ vec3 TraceRay(Ray ray) {
     vec3 color = BackgroundColor;
     Hit hit;
     RayTree[0] = ray;
+    int startIndex = 0;
     for (int i = 0; i < Depth; i++) {
-        int rowSize = ipow(2, i);
+        int rowSize = int(pow(2, i));
         for (int j = 0; j < rowSize; j++) {
-            if (CastRay(RayTree[i + j], hit)) {
+            int leftChild = j * 2 + 1;
+            int rightChild = j * 2 + 2;
+            RayTree[leftChild] = Ray(vec3(0), vec3(0));
+            RayTree[rightChild] = Ray(vec3(0), vec3(0));
+            if (length(RayTree[startIndex + j].Direction) == 0)
+                continue;
+            if (CastRay(RayTree[startIndex + j], hit)) {
                 if (hit.Material.Reflection == 0 && hit.Material.Refraction == 0) {
                     // Phong
-                    ColorTree[i] = hit.Color;
+                    //ColorTree[startIndex + j] = hit.Color;
+                    return hit.Color;
                 }
                 if (hit.Material.Refraction > 0) {
                     // refract
@@ -211,20 +219,23 @@ vec3 TraceRay(Ray ray) {
                     } else {
                         refraction = refract(ray.Direction, hit.Normal, refractionRatio);
                     }
-                    ray = Ray(hit.Position + refraction * RAY_DISPLACEMENT, refraction);
+                    //refraction = refract(ray.Direction, hit.Normal, AIR_REFRACTION_INDEX / hit.Material.RefractionIndex);
+                    RayTree[rightChild] = Ray(hit.Position + refraction * RAY_DISPLACEMENT, refraction);
                     continue;
                 }
                 if (hit.Material.Reflection > 0) {
                     // reflect
                     vec3 reflection = reflect(ray.Direction, hit.Normal);
-                    ray = Ray(hit.Position + reflection * RAY_DISPLACEMENT, reflection);
+                    RayTree[leftChild] = Ray(hit.Position + reflection * RAY_DISPLACEMENT, reflection);
                     continue;
                 }
             }
             else {
+                ColorTree[startIndex + j] = BackgroundColor;
                 return BackgroundColor;
             }
         }
+        startIndex += rowSize;
     }
     return color;
 }
