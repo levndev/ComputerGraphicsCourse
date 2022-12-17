@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Assignment8
 {
     internal class Framebuffer : IDisposable
     {
-        int FBO;
+        public readonly int FBO;
         public readonly Texture TargetTexture;
         public Framebuffer(Texture target)
         {

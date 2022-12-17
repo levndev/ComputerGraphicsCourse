@@ -48,12 +48,15 @@ namespace Assignment8
 
             Uniforms = new Dictionary<string, int>();
             GL.GetProgram(ShaderProgram, GetProgramParameterName.ActiveUniforms, out var numberOfUniforms);
+            var totalSize = 0;
             for (var i = 0; i < numberOfUniforms; i++)
             {
-                var key = GL.GetActiveUniform(ShaderProgram, i, out _, out _);
+                var key = GL.GetActiveUniform(ShaderProgram, i, out var size, out _);
+                totalSize += size;
                 var location = GL.GetUniformLocation(ShaderProgram, key);
                 Uniforms.Add(key, location);
             }
+            Console.WriteLine($"Shader total uniform size: {totalSize}");
         }
 
         private static string PreProcessShader(string path)
@@ -145,6 +148,9 @@ namespace Assignment8
                     case Color4 value:
                         SetColor4(uName, value);
                         break;
+                    case List<object> value:
+                        SetStructArray(value, uName, uName + "Count");
+                        break;
                     default:
                         SetStruct(field.GetValue(o), uName);
                         break;
@@ -220,7 +226,10 @@ namespace Assignment8
         {
             if (!Uniforms.ContainsKey(name))
             {
-                Uniforms.Add(name, GL.GetUniformLocation(ShaderProgram, name));
+                var id = GL.GetUniformLocation(ShaderProgram, name);
+                if (id == -1)
+                    throw new Exception($"Uniform not found: {name}, id returned = {id}");
+                Uniforms.Add(name, id);
             }
         }
     }

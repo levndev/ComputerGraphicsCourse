@@ -13,7 +13,7 @@ namespace Assignment8
                 Size = new Vector2i(800, 800),
                 Title = "Title",
                 NumberOfSamples = 8,
-                //WindowState = WindowState.Fullscreen,
+                WindowState = WindowState.Maximized,
             };
             var gameWindowSettings = new GameWindowSettings()
             {

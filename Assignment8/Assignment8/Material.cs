@@ -9,14 +9,10 @@ namespace Assignment8
 {
     internal class Material
     {
-        
-        //ray tracing
-        public Vector3 Ambient;
-        public Vector3 Diffuse;
-        public Vector3 Specular;
-        public float Shininess;
-        public float Reflection;
-        public float Refraction;
-        public float RefractionIndex;
+        public Vector3 Emittance;
+        public Vector3 Reflectance;
+        public float Smoothness;
+        public float Transparency;
+        public float RefractiveIndex = 1;
     }
 }

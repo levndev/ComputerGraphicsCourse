@@ -12,7 +12,5 @@ namespace Assignment8
         public Vector3 Position;
         public float Radius;
         public Material Material;
-        public Vector3 Color;
-        public bool IgnoreLight = false;
     }
 }

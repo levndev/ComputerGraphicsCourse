@@ -1,21 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj": {}
+    "E:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj": {}
   },
   "projects": {
-    "C:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj": {
+    "E:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj",
+        "projectUniqueName": "E:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj",
         "projectName": "Assignment8",
-        "projectPath": "C:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj",
+        "projectPath": "E:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\Assignment8.csproj",
         "packagesPath": "C:\\Users\\Lev\\.nuget\\packages\\",
-        "outputPath": "C:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\obj\\",
+        "outputPath": "E:\\Workspace\\ComputerGraphicsCourse\\Assignment8\\Assignment8\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
           "C:\\Users\\Lev\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -40,9 +44,25 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "AssimpNet": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
+            "ImGui.NET": {
+              "target": "Package",
+              "version": "[1.88.0, )"
+            },
             "OpenTK": {
               "target": "Package",
               "version": "[4.7.5, )"
+            },
+            "StbImageSharp": {
+              "target": "Package",
+              "version": "[2.27.13, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[7.0.0, )"
             }
           },
           "imports": [
@@ -61,7 +81,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }
