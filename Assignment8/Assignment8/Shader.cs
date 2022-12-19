@@ -13,6 +13,10 @@ using OpenTK.Mathematics;
 
 namespace Assignment8
 {
+    public class IgnoreInShader : Attribute
+    {
+
+    }
     public class Shader
     {
         private string VertexShaderText;
@@ -121,6 +125,8 @@ namespace Assignment8
         {
             foreach (var field in o.GetType().GetFields())
             {
+                if (field.GetCustomAttribute<IgnoreInShader>() != null)
+                    continue;
                 var uName = $"{name}.{field.Name}";
                 switch(field.GetValue(o))
                 {

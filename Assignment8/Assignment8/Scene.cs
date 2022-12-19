@@ -15,6 +15,7 @@ namespace Assignment8
         public Mesh Mesh;
         public Texture Skybox;
         public Dictionary<string, object> CustomSettings = new Dictionary<string, object>();
+        public float SkyboxColorMultiplier = 1;
         public void Use(Shader shader)
         {
             shader.Use();
@@ -29,7 +30,7 @@ namespace Assignment8
             if (Mesh != null)
             {
                 shader.SetInt("MeshSize", Mesh.Vertices.Count);
-                //shader.SetVector3("MeshPosition", Mesh.Position);
+                shader.SetVector3("MeshPosition", Mesh.Position);
                 shader.SetStruct(Mesh.Material, "MeshMaterial");
                 for (var i = 0; i < Mesh.Vertices.Count; i++)
                 {
@@ -41,6 +42,7 @@ namespace Assignment8
                 shader.SetInt("MeshSize", 0);
             }
             Skybox.Use(TextureUnit.Texture0, TextureTarget.TextureCubeMap);
+            shader.SetFloat("SkyboxColorMultiplier", SkyboxColorMultiplier);
         }
     }
 }

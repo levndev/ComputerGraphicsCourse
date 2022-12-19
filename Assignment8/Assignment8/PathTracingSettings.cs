@@ -8,7 +8,9 @@ namespace Assignment8
 {
     internal class PathTracingSettings
     {
-        public int Depth;
+        [IgnoreInShader]
+        public const int DefaultDepth = 8;
+        public int Depth = DefaultDepth;
         public float EnvironmentRefractiveIndex = 1;
         public bool UseSkyboxForLighting = true;
     }

@@ -47,10 +47,17 @@ namespace Assignment8
         private Texture Skybox;
         ImGuiController _controller;
         private bool ShowSettings = true;
-        private int Samples = 8;
-        private int MoveSamples = 4;
+        private const int DefaultSamples = 8;
+        private const int DefaultMoveSamples = 4;
+        private int Samples = DefaultSamples;
+        private int MoveSamples = DefaultMoveSamples;
         DateTime PepeLaugh = new DateTime(2022, 12, 17);
-
+        private bool HighQualityMode = false;
+        private const int DefaultHighQualityModeIterations = 10;
+        private int HighQualityModeIterations = DefaultHighQualityModeIterations;
+        private int HighQualityModeSamples = 128;
+        private int HighQualityModeDepth = 32;
+        private DateTime HighQualityModeDate;
         private PostProcessingSettings PostProcessingSettings;
         private PathTracingSettings PathTracingSettings;
         public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -66,13 +73,24 @@ namespace Assignment8
             debugShader = new Shader("Shaders/debug.vert", "Shaders/debug.frag");
             postProcessShader = new Shader("Shaders/postProcess.vert", "Shaders/postProcess.frag");
             //StbImage.stbi_set_flip_vertically_on_load(1);
-
-            Skybox = Texture.LoadCubemap(new string[] { "Textures/right.jpg",
+            var defaultSkybox = Texture.LoadCubemap(new string[] { "Textures/right.jpg",
                                                         "Textures/left.jpg",
                                                         "Textures/top.jpg",
                                                         "Textures/bottom.jpg",
                                                         "Textures/front.jpg",
                                                         "Textures/back.jpg", });
+            var Powerlines = Texture.LoadCubemap(new string[] { "Textures/night-skyboxes/Powerlines/posx.jpg",
+                                                        "Textures/night-skyboxes/Powerlines/negx.jpg",
+                                                        "Textures/night-skyboxes/Powerlines/posy.jpg",
+                                                        "Textures/night-skyboxes/Powerlines/negy.jpg",
+                                                        "Textures/night-skyboxes/Powerlines/posz.jpg",
+                                                        "Textures/night-skyboxes/Powerlines/negz.jpg", });
+            var SpaceSkybox = Texture.LoadCubemap(new string[] { "Textures/ulukai/corona_ft.png",
+                                                        "Textures/ulukai/corona_bk.png",
+                                                        "Textures/ulukai/corona_up.png",
+                                                        "Textures/ulukai/corona_dn.png",
+                                                        "Textures/ulukai/corona_rt.png",
+                                                        "Textures/ulukai/corona_lf.png", });
             var vertices = new float[]
             {
                 -1, -1, 0, 0,
@@ -113,15 +131,10 @@ namespace Assignment8
             PathTracingSettings.EnvironmentRefractiveIndex = 1f;
             Scenes = new List<Scene>
             {
-                #region Scene1
+                #region Scene0
                 new Scene
                 {
-                    Skybox = Texture.LoadCubemap(new string[] { "Textures/night-skyboxes/Powerlines/posx.jpg",
-                                                        "Textures/night-skyboxes/Powerlines/negx.jpg",
-                                                        "Textures/night-skyboxes/Powerlines/posy.jpg",
-                                                        "Textures/night-skyboxes/Powerlines/negy.jpg",
-                                                        "Textures/night-skyboxes/Powerlines/posz.jpg",
-                                                        "Textures/night-skyboxes/Powerlines/negz.jpg", }),
+                    Skybox = defaultSkybox,
                     OnGUI = s =>
                     {
                         bool result = false;
@@ -131,23 +144,23 @@ namespace Assignment8
                         }
                         if ((bool)s.CustomSettings["Lock light sliders"])
                         {
-                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 15))
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 30))
                                 result = true;
-                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 15))
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 30))
                                 result = true;
-                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 15))
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
                                 result = true;
                         }
                         else
                         {
-                            if (ImGui.SliderFloat("Light strength R", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 15))
+                            if (ImGui.SliderFloat("Light strength R", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 30))
                                 result = true;
-                            if (ImGui.SliderFloat("Light strength G", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 15))
+                            if (ImGui.SliderFloat("Light strength G", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 30))
                                 result = true;
-                            if (ImGui.SliderFloat("Light strength B", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 15))
+                            if (ImGui.SliderFloat("Light strength B", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
                                 result = true;
                         }
-                        
+
                         return result;
                     },
                     CustomSettings =
@@ -188,12 +201,12 @@ namespace Assignment8
                         //right
                         new Sphere
                         {
-                            Position = new Vector3(2.5f, 1.5f, -1.5f),
+                            Position = new Vector3(2.5f, -4, 3),
                             Radius = 1.5f,
                             Material = new Material
                             {
                                 Emittance = new Vector3(0),
-                                Reflectance = new Vector3(1, 0, 0),
+                                Reflectance = new Vector3(1),
                                 Smoothness = 1,
                                 Transparency = 0,
                             },
@@ -201,28 +214,14 @@ namespace Assignment8
                         //left
                         new Sphere
                         {
-                            Position = new Vector3(-2.5f, 2.5f, -1.0f),
-                            Radius = 1,
-                            Material = new Material
-                            {
-                                Emittance = new Vector3(0),
-                                Reflectance = new Vector3(1, 0.4f, 0),
-                                Smoothness = 0.8f,
-                                Transparency = 0,
-                            },
-                        },
-                        //center
-                        new Sphere
-                        {
-                            Position = new Vector3(0.5f, -4.0f, 3.0f),
+                            Position = new Vector3(-2.5f, -4, 3),
                             Radius = 1,
                             Material = new Material
                             {
                                 Emittance = new Vector3(0),
                                 Reflectance = new Vector3(1),
-                                Smoothness = 1f,
+                                Smoothness = 1,
                                 Transparency = 1,
-                                RefractiveIndex = 1,
                             },
                         },
                     },
@@ -307,19 +306,19 @@ namespace Assignment8
                             Material = new Material
                             {
                                 Emittance = new Vector3(0),
-                                Reflectance = new Vector3(1),
-                                Smoothness = 1,
+                                Reflectance = new Vector3(0, 0, 1),
+                                Smoothness = 0,
                                 Transparency = 0,
                             },
                         },
                         //middle left
                         new Box
                         {
-                            Position = new Vector3(-2.0f, -2.0f, -0.0f),
+                            Position = new Vector3(-2.0f, -2.0f, -1.0f),
                             Rotation = new Matrix3(
-                                new Vector3(0.7f, 0.0f, 0.7f),
+                                new Vector3(0.6f, 0.0f, 0.6f),
                                 new Vector3(0.0f, 1.0f, 0.0f),
-                                new Vector3(-0.7f, 0.0f, 0.7f)
+                                new Vector3(-0.6f, 0.0f, 0.6f)
                             ),
                             HalfSize = new Vector3(1.5f, 3.0f, 1.5f),
                             Material = new Material
@@ -333,11 +332,231 @@ namespace Assignment8
                         //middle right
                         new Box
                         {
-                            Position = new Vector3(2.5f, -3.5f, -0.0f),
+                            Position = new Vector3(2.5f, -3.5f, -1.0f),
                             Rotation = new Matrix3(
-                                new Vector3(0.7f, 0.0f, 0.7f),
+                                new Vector3(0.6f, 0.0f, 0.6f),
                                 new Vector3(0.0f, 1.0f, 0.0f),
-                                new Vector3(-0.7f, 0.0f, 0.7f)
+                                new Vector3(-0.6f, 0.0f, 0.6f)
+                            ),
+                            HalfSize = new Vector3(1.0f, 1.5f, 1.0f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                    },
+                },
+                #endregion
+                #region Scene1
+                new Scene
+                {
+                    Skybox = Powerlines,
+                    SkyboxColorMultiplier = 0.05f,
+                    OnGUI = s =>
+                    {
+                        bool result = false;
+                        if (ImGui.Button("Lock light sliders"))
+                        {
+                            s.CustomSettings["Lock light sliders"] = !(bool)s.CustomSettings["Lock light sliders"];
+                        }
+                        if ((bool)s.CustomSettings["Lock light sliders"])
+                        {
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
+                                result = true;
+                        }
+                        else
+                        {
+                            if (ImGui.SliderFloat("Light strength R", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength G", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength B", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
+                                result = true;
+                        }
+                        
+                        return result;
+                    },
+                    CustomSettings =
+                    {
+                        { "Lock light sliders", true },
+                    },
+                    //Meshes = new List<object>
+                    //{
+                    //    new Mesh
+                    //    {
+                    //        Position = new Vector3(2.5f, 1.5f, -1.5f),
+                    //        Triangles = new List<object>
+                    //        {
+                    //            new Triangle
+                    //            {
+                    //                v0 = new TriangleVertex{
+                    //                    Position = new Vector3(-1, 0, 4),
+                    //                },
+                    //                v1 = new TriangleVertex{
+                    //                    Position = new Vector3(0, 1, 4),
+                    //                },
+                    //                v2 = new TriangleVertex{
+                    //                    Position = new Vector3(1, 0, 4),
+                    //                },
+                    //            }
+                    //        },
+                    //        Material = new Material
+                    //        {
+                    //            Emittance = new Vector3(0),
+                    //            Reflectance = new Vector3(1, 0, 0),
+                    //            Smoothness = 0,
+                    //            Transparency = 0,
+                    //        },
+                    //    }
+                    //},
+                    Spheres = new List<object>
+                    {
+                        //right
+                        new Sphere
+                        {
+                            Position = new Vector3(2.5f, -4, 3),
+                            Radius = 1.5f,
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 1,
+                                Transparency = 0,
+                            },
+                        },
+                        //left
+                        new Sphere
+                        {
+                            Position = new Vector3(-2.5f, -4, 3),
+                            Radius = 1,
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 1,
+                                Transparency = 1,
+                            },
+                        },
+                    },
+                    Boxes = new List<object>
+                    {
+                        //light
+                        new Box
+                        {
+                            Position = new Vector3(0.0f, 4.8f, 0.0f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(2.5f, 0.2f, 2.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(2),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //top
+                        new Box
+                        {
+                            Position = new Vector3(0, 5.5f, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //bottom
+                        new Box
+                        {
+                            Position = new Vector3(0, -5.5f, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0.3f,
+                                Transparency = 0,
+                            },
+                        },
+                        //left
+                        new Box
+                        {
+                            Position = new Vector3(-5.5f, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 5, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1, 0, 0),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //right
+                        new Box
+                        {
+                            Position = new Vector3(5.5f, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 5, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0, 1, 0),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //back
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, -5.5f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 5, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0, 0, 1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //middle left
+                        new Box
+                        {
+                            Position = new Vector3(-2.0f, -2.0f, -1.0f),
+                            Rotation = new Matrix3(
+                                new Vector3(0.6f, 0.0f, 0.6f),
+                                new Vector3(0.0f, 1.0f, 0.0f),
+                                new Vector3(-0.6f, 0.0f, 0.6f)
+                            ),
+                            HalfSize = new Vector3(1.5f, 3.0f, 1.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //middle right
+                        new Box
+                        {
+                            Position = new Vector3(2.5f, -3.5f, -1.0f),
+                            Rotation = new Matrix3(
+                                new Vector3(0.6f, 0.0f, 0.6f),
+                                new Vector3(0.0f, 1.0f, 0.0f),
+                                new Vector3(-0.6f, 0.0f, 0.6f)
                             ),
                             HalfSize = new Vector3(1.0f, 1.5f, 1.0f),
                             Material = new Material
@@ -527,162 +746,684 @@ namespace Assignment8
                     },
                 },
                 #endregion
-            };
-
-            var vList = new List<Vector3>();
-            AssimpContext importer = new AssimpContext();
-            var s = importer.ImportFile("Meshes/test2.fbx", PostProcessSteps.Triangulate | PostProcessSteps.SortByPrimitiveType);
-            if (s == null)
-                throw new FileNotFoundException();
-            foreach (var mesh in s.Meshes)
-            {
-                vList.AddRange(mesh.Vertices.Select(v => new Vector3(v.X, v.Y, v.Z)));
-            }
-            #region Scene3
-            Scenes.Add(new Scene
-            {
-                Skybox = Skybox,
-                Mesh = new Mesh
+                #region Scene3
+                new Scene
                 {
-                    Material = new Material
+                    Skybox = SpaceSkybox,//
+                    //Mesh = Mesh.LoadFromFile("Meshes/cylinder.fbx", new Vector3(1.5f, 2, 0), new Material
+                    //{
+                    //    Emittance = new Vector3(0),
+                    //    Reflectance = new Vector3(1),
+                    //    Smoothness = 0,
+                    //    Transparency = 0,
+                    //}),
+                    OnGUI = s =>
                     {
-                        Emittance = Vector3.Zero,
-                        Reflectance = Vector3.One,
+                        bool result = false;
+                        if (ImGui.Button("Lock light sliders"))
+                        {
+                            s.CustomSettings["Lock light sliders"] = !(bool)s.CustomSettings["Lock light sliders"];
+                        }
+                        if ((bool)s.CustomSettings["Lock light sliders"])
+                        {
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
+                                result = true;
+                        }
+                        else
+                        {
+                            if (ImGui.SliderFloat("Light strength R", ref (s.Boxes[0] as Box).Material.Emittance.X, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength G", ref (s.Boxes[0] as Box).Material.Emittance.Y, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light strength B", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
+                                result = true;
+                        }
+                        if (ImGui.Button("Lock light 2 sliders"))
+                        {
+                            s.CustomSettings["Lock light 2 sliders"] = !(bool)s.CustomSettings["Lock light 2 sliders"];
+                        }
+                        if ((bool)s.CustomSettings["Lock light 2 sliders"])
+                        {
+                            if (ImGui.SliderFloat("Light 2 strength", ref (s.Boxes[1] as Box).Material.Emittance.X, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light 2 strength", ref (s.Boxes[1] as Box).Material.Emittance.Y, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light 2 strength", ref (s.Boxes[1] as Box).Material.Emittance.Z, 0, 30))
+                                result = true;
+                        }
+                        else
+                        {
+                            if (ImGui.SliderFloat("Light 2 strength R", ref (s.Boxes[1] as Box).Material.Emittance.X, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light 2 strength G", ref (s.Boxes[1] as Box).Material.Emittance.Y, 0, 30))
+                                result = true;
+                            if (ImGui.SliderFloat("Light 2 strength B", ref (s.Boxes[1] as Box).Material.Emittance.Z, 0, 30))
+                                result = true;
+                        }
+                        return result;
+                    },
+                    CustomSettings =
+                    {
+                        { "Lock light sliders", true },
+                        { "Lock light 2 sliders", true },
+                    },
+                    Spheres = new List<object>
+                    {
+                    },
+                    Boxes = new List<object>
+                    {
+                        //light
+                        new Box
+                        {
+                            Position = new Vector3(1.5f, 5.9f, -4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.1f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(8),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //light
+                        new Box
+                        {
+                            Position = new Vector3(1.5f, 5.9f, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.1f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(8),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //bottom
+                        new Box
+                        {
+                            Position = new Vector3(0, -0.5f, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //Pole
+                        new Box
+                        {
+                            Position = new Vector3(4.5f, 3, -4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 3, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //Pole top
+                        new Box
+                        {
+                            Position = new Vector3(3f, 6.5f, -4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(2f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //Pole
+                        new Box
+                        {
+                            Position = new Vector3(4.5f, 3, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 3, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //Pole top
+                        new Box
+                        {
+                            Position = new Vector3(3f, 6.5f, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(2f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        
+                        //red box
+                        new Box
+                        {
+                            Position = new Vector3(1.5f, 0.5f, -3),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1, 0, 0),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //green box
+                        new Box
+                        {
+                            Position = new Vector3(1.5f, 0.5f, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0, 1, 0),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //blue box
+                        new Box
+                        {
+                            Position = new Vector3(1.5f, 0.5f, 3),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0, 0, 1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                    },
+                },
+                #endregion
+                #region Scene4
+                new Scene
+                {
+                    Skybox = SpaceSkybox,//
+                    //Mesh = Mesh.LoadFromFile("Meshes/cylinder.fbx", new Vector3(1.5f, 2, 0), new Material
+                    //{
+                    //    Emittance = new Vector3(0),
+                    //    Reflectance = new Vector3(1),
+                    //    Smoothness = 0,
+                    //    Transparency = 0,
+                    //}),
+                    Spheres = new List<object>
+                    {
+                    },
+                    Boxes = new List<object>
+                    {
+                        //bottom
+                        new Box
+                        {
+                            Position = new Vector3(0, -5, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //top
+                        new Box
+                        {
+                            Position = new Vector3(0, 5, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //left
+                        new Box
+                        {
+                            Position = new Vector3(-5, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 5, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //right
+                        new Box
+                        {
+                            Position = new Vector3(5, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 5f, 5),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //front
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, -5),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 5, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //back
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, 5),
+                            Rotation = Matrix3.Identity,
+                            //Rotation = new Matrix3(
+                            //    new Vector3(0.6f, 0.0f, 0.6f),
+                            //    new Vector3(0.0f, 1.0f, 0.0f),
+                            //    new Vector3(-0.6f, 0.0f, 0.6f)
+                            //),
+                            HalfSize = new Vector3(5, 5, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //light
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(12),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box1
+                        new Box
+                        {
+                            Position = new Vector3(-2, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(1),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0, 1, 0),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box1
+                        new Box
+                        {
+                            Position = new Vector3(2, 0, 0),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(1),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1, 0, 0),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                    },
+                },
+                #endregion
+                #region Scene5
+                new Scene
+                {
+                    Skybox = SpaceSkybox,//
+                    Spheres = new List<object>
+                    {
+                        new Sphere
+                        {
+                            Position = new Vector3(0, 0, -2),
+                            Radius = 0.5f,
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 1,
+                                Transparency = 1,
+                            },
+                        },
+                    },
+                    Boxes = new List<object>
+                    {
+                        //bottom
+                        new Box
+                        {
+                            Position = new Vector3(0, -5, -2.5f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 7.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //top
+                        new Box
+                        {
+                            Position = new Vector3(0, 5, -2.5f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 0.5f, 7.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //left
+                        new Box
+                        {
+                            Position = new Vector3(-5, 0, -2.5f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 5, 7.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //right
+                        new Box
+                        {
+                            Position = new Vector3(5, 0, -2.5f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 5f, 7.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //front
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, -10),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(5, 5, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //back
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, 5),
+                            Rotation = Matrix3.Identity,
+                            //Rotation = new Matrix3(
+                            //    new Vector3(0.6f, 0.0f, 0.6f),
+                            //    new Vector3(0.0f, 1.0f, 0.0f),
+                            //    new Vector3(-0.6f, 0.0f, 0.6f)
+                            //),
+                            HalfSize = new Vector3(5, 5, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //light
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, 4.5f),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f, 0.5f, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(12),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box1
+                        new Box
+                        {
+                            Position = new Vector3(-1, 0, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.4f, 0.6f, 3),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0.2f),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box2
+                        new Box
+                        {
+                            Position = new Vector3(1, 0, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.4f, 0.6f, 3),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0.2f),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box3
+                        new Box
+                        {
+                            Position = new Vector3(0, 1, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.6f, 0.4f, 3),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0.2f),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box4
+                        new Box
+                        {
+                            Position = new Vector3(0, -1, 4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.6f, 0.4f, 3),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(0.2f),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box5
+                        new Box
+                        {
+                            Position = new Vector3(-1, 0, -2),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box6
+                        new Box
+                        {
+                            Position = new Vector3(1, 0, -2),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                        //box7
+                        //new Box
+                        //{
+                        //    Position = new Vector3(0, 0, -2),
+                        //    Rotation = Matrix3.Identity,
+                        //    HalfSize = new Vector3(0.5f),
+                        //    Material = new Material
+                        //    {
+                        //        Emittance = new Vector3(0),
+                        //        Reflectance = new Vector3(1),
+                        //        Smoothness = 1,
+                        //        Transparency = 1,
+                        //    },
+                        //},
+                    },
+                },
+                #endregion
+                #region Scene5
+                new Scene
+                {
+                    Skybox = defaultSkybox,//
+                    Mesh = Mesh.LoadFromFile("Meshes/test2.fbx", new Vector3(0), new Material
+                    {
+                        Emittance = new Vector3(0),
+                        Reflectance = new Vector3(1),
                         Smoothness = 0,
                         Transparency = 0,
+                    }),
+                    Spheres = new List<object>
+                    {
+                        new Sphere
+                        {
+                            Position = new Vector3(0, 0, 4),
+                            Radius = 1,
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(6),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
                     },
-                    Position = Vector3.Zero,
-                    Vertices = vList,
+                    Boxes = new List<object>
+                    {
+                        new Box
+                        {
+                            Position = new Vector3(0, 0, -4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(3, 3, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
+                        },
+                    },
                 },
-                Boxes = new List<object>
+                #endregion
+                #region Scene6
+                new Scene
                 {
-                    //bottom
-                    new Box
+                    Skybox = defaultSkybox,//
+                    Mesh = Mesh.LoadFromFile("Meshes/cylinder.fbx", new Vector3(0), new Material
                     {
-                        Position = new Vector3(0, -1.5f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(10, 0.5f, 10),
-                        Material = new Material
+                        Emittance = new Vector3(0),
+                        Reflectance = new Vector3(1),
+                        Smoothness = 0,
+                        Transparency = 0,
+                    }),
+                    Spheres = new List<object>
+                    {
+                        new Sphere
                         {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1),
-                            Smoothness = 0,
-                            Transparency = 0,
+                            Position = new Vector3(0, 0, 4),
+                            Radius = 1,
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(6),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
                         },
                     },
-                    //top
-                    new Box
+                    Boxes = new List<object>
                     {
-                        Position = new Vector3(0, 4.5f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(10, 0.5f, 10),
-                        Material = new Material
+                        new Box
                         {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1),
-                            Smoothness = 0,
-                            Transparency = 0,
-                        },
-                    },
-                    //left
-                    new Box
-                    {
-                        Position = new Vector3(-10.5f, 1.5f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(0.5f, 3.5f, 10),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1),
-                            Smoothness = 0,
-                            Transparency = 0,
-                        },
-                    },
-                    //right
-                    new Box
-                    {
-                        Position = new Vector3(10.5f, 1.5f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(0.5f, 3.5f, 10),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1),
-                            Smoothness = 0,
-                            Transparency = 0,
-                        },
-                    },
-                    //back
-                    new Box
-                    {
-                        Position = new Vector3(0, 1.5f, -10.5f),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(10, 3.5f, 0.5f),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1),
-                            Smoothness = 1,
-                            Transparency = 0,
-                        },
-                    },
-                    //front
-                    new Box
-                    {
-                        Position = new Vector3(0, 1.5f, 10.5f),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(10, 3.5f, 0.5f),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1),
-                            Smoothness = 0,
-                            Transparency = 0,
-                        },
-                    },
-                    //light
-                    new Box
-                    {
-                        Position = new Vector3(0, 3.9f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(1, 0.1f, 1),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(12),
-                            Reflectance = new Vector3(0),
-                            Smoothness = 0,
-                            Transparency = 0,
-                        },
-                    },
-                    new Box
-                    {
-                        Position = new Vector3(-2, -0.5f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(0.5f),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(0, 1, 0),
-                            Smoothness = 0,
-                            Transparency = 0,
-                        },
-                    },
-                    new Box
-                    {
-                        Position = new Vector3(2, -0.5f, 0),
-                        Rotation = Matrix3.Identity,
-                        HalfSize = new Vector3(0.5f),
-                        Material = new Material
-                        {
-                            Emittance = new Vector3(0),
-                            Reflectance = new Vector3(1, 0, 0),
-                            Smoothness = 0,
-                            Transparency = 0,
+                            Position = new Vector3(0, 0, -4),
+                            Rotation = Matrix3.Identity,
+                            HalfSize = new Vector3(3, 3, 0.5f),
+                            Material = new Material
+                            {
+                                Emittance = new Vector3(0),
+                                Reflectance = new Vector3(1),
+                                Smoothness = 0,
+                                Transparency = 0,
+                            },
                         },
                     },
                 },
-            });
-            #endregion
+                #endregion
+            };
             //CurrentScene = Scenes.Count - 1;
             Scenes[CurrentScene].Use(ptShader);
         }
@@ -746,6 +1487,18 @@ namespace Assignment8
             framebuffer.TargetTexture.Use(TextureUnit.Texture0);
             GL.BindVertexArray(VAO);
             GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, 6);
+            if (HighQualityMode)
+            {
+                Directory.CreateDirectory("Screenshots/" + HighQualityModeDate.ToString($"HH-mm-ss_dd-MM-yyyy"));
+                SaveScreenshot(HighQualityModeDate.ToString($"HH-mm-ss_dd-MM-yyyy'/HQ_'{HighQualityModeIterations}_"));
+                if (--HighQualityModeIterations <= 0)
+                {
+                    HighQualityMode = false;
+                    Samples = DefaultSamples;
+                    PathTracingSettings.Depth = PathTracingSettings.DefaultDepth;
+                    HighQualityModeIterations = DefaultHighQualityModeIterations;
+                }
+            }
             GUI((float)e.Time);
             SwapBuffers();
         }
@@ -770,6 +1523,7 @@ namespace Assignment8
                 }
                 ImGui.SliderInt("Samples when moving", ref MoveSamples, 1, 32);
                 ImGui.SliderInt("Blur Kernel offset", ref PostProcessingSettings.KernelOffsetDivisor, 1, 30, "%d", ImGuiSliderFlags.AlwaysClamp);
+                ImGui.SliderInt("Gamma", ref PostProcessingSettings.Gamma, 1, 40, "%d", ImGuiSliderFlags.AlwaysClamp);
                 if (ImGui.Button("Reset frame accumulator"))
                     ClearAccumulator = true;
                 ImGui.BeginGroup();
@@ -793,9 +1547,21 @@ namespace Assignment8
                     Debug = !Debug;
                     ClearAccumulator = true;
                 }
+                ImGui.SliderInt("High quality mode samples", ref HighQualityModeSamples, 1, 500);
+                ImGui.SliderInt("High quality mode depth", ref HighQualityModeDepth, 1, 64, "%d");
+                ImGui.SliderInt("High quality mode iterations", ref HighQualityModeIterations, 1, 1000, "%d");
+                //ImGui.SliderInt3("LOL", ref HighQualityModeSamples, 1, 1000, "%d");
+                if (ImGui.Button("Enable high quality mode"))
+                {
+                    HighQualityMode = true;
+                    Samples = HighQualityModeSamples;
+                    PathTracingSettings.Depth = HighQualityModeDepth;
+                    ClearAccumulator = true;
+                    HighQualityModeDate = DateTime.Now;
+                }
                 if (ImGui.Button("Save image"))
                 {
-                    SaveScreenshot();
+                    SaveScreenshot(DateTime.Now.ToString("HH-mm-ss_dd-MM-yyyy"));
                 }
                 if (ImGui.Button("Close app"))
                     Close();
@@ -819,7 +1585,7 @@ namespace Assignment8
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<DGAF>")]
-        private void SaveScreenshot()
+        private void SaveScreenshot(string name)
         {
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
             var w = framebuffer.TargetTexture.Size.X;
@@ -830,7 +1596,7 @@ namespace Assignment8
             bmp.UnlockBits(data);
             Directory.CreateDirectory("Screenshots");
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            bmp.Save($"Screenshots/{DateTime.Now.ToString("HH-mm-ss-dd-MM-yyyy")}.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+            bmp.Save($"Screenshots/{name}.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
         }
 
         private void ChangeSceneLeft()
@@ -945,12 +1711,22 @@ namespace Assignment8
                     }
                 }
             }
+            else
+            {
+                if (!AccumulateFrames)
+                {
+                    AccumulateFrames = true;
+                    AccumulatedFrames = 0;
+                    ClearAccumulator = true;
+                }
+            }
             //Title = AccumulatedFrames.ToString();
         }
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+            Camera.ViewportSize = ClientSize;
             if (_controller == null)
                 _controller = new ImGuiController(ClientSize.X, ClientSize.Y);
             _controller.WindowResized(ClientSize.X, ClientSize.Y);

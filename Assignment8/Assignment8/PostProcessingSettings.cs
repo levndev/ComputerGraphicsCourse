@@ -9,5 +9,6 @@ namespace Assignment8
     internal class PostProcessingSettings
     {
         public int KernelOffsetDivisor;
+        public int Gamma = 22;
     }
 }

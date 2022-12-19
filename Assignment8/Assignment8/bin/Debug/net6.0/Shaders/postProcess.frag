@@ -5,14 +5,16 @@ uniform sampler2D ScreenTexture;
 uniform int Samples;
 struct PostProcessingSettings {
     int KernelOffsetDivisor;
+    int Gamma;
 };
 uniform PostProcessingSettings Settings;
 vec3 Filter(vec3 Color) {
     // average over accumulated frames
     Color /= float(Samples);
-    //gamma correction
+    //tone mapping
     Color = Color / (Color + vec3(1.0));
-    Color = pow(Color, vec3(1.0 / 2.2));
+    //gamma correction
+    Color = pow(Color, vec3(1.0 / (float(Settings.Gamma) * 0.1)));
     return Color;
 }
 

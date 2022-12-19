@@ -62,7 +62,7 @@ namespace Assignment8
                 using (Stream stream = File.OpenRead(paths[i]))
                 {
                     var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
-                    GL.TexImage2D(sides[i], 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, image.Data);
+                    GL.TexImage2D(sides[i], 0, PixelInternalFormat.Srgb, image.Width, image.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, image.Data);
                 }
             }
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);

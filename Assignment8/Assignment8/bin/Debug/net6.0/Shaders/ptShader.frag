@@ -5,7 +5,7 @@
 #define HALF_PI (PI / 2.0)
 #define FAR_DISTANCE 1000000.0
 #define K_EPSILON 1e-8
-#define MAX_MESH_SIZE 300
+#define MAX_MESH_SIZE 800
 struct CameraData {
     vec3 Position;
     vec2 ViewportSize;
@@ -66,6 +66,7 @@ uniform Material MeshMaterial;
 uniform int SphereCount;
 uniform int BoxCount;
 uniform samplerCube Skybox;
+uniform float SkyboxColorMultiplier;
 uniform PathTracingSettings Settings;
 //https://stackoverflow.com/a/17479300
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
@@ -294,7 +295,7 @@ bool CastRay(Ray ray, out Hit oHit) {
     for (int i = 0; i < MAX_MESH_SIZE; i += 3) {
         if (i == MeshSize)
             break;
-        if (RayTriangleIntersection(ray, MeshVertices[i], MeshVertices[i + 1], MeshVertices[i + 2], hit)) {
+        if (RayTriangleIntersection(ray, MeshVertices[i] + MeshPosition, MeshVertices[i + 1] + MeshPosition, MeshVertices[i + 2] + MeshPosition, hit)) {
             if (hit.Distance < minDistance) {
                 minDistance = hit.Distance;
                 hit.Material = MeshMaterial;
@@ -350,7 +351,7 @@ vec3 TracePath(Ray ray, Hit hit, float seed) {
         else
         {
             if (Settings.UseSkyboxForLighting)
-                L += F * texture(Skybox, ray.Direction).xyz;
+                L += F * texture(Skybox, ray.Direction).xyz * SkyboxColorMultiplier;
             else
                 F = vec3(0.0);
             break;
@@ -374,12 +375,12 @@ void main()
     Hit firstHit;
     if (CastRay(firstRay, firstHit)) {
         for (int i = 0; i < Samples; i++) {
-            float seed = sin(Time);
+            float seed = sin(float(i) + Time);
             color += TracePath(firstRay, firstHit, seed);
         }
         FragColor = vec4(color / float(Samples), 1.0);
     }
     else {
-        FragColor = vec4(texture(Skybox, firstRay.Direction).xyz, 1.0);
+        FragColor = vec4(texture(Skybox, firstRay.Direction).xyz * SkyboxColorMultiplier, 1.0);
     }
 }   

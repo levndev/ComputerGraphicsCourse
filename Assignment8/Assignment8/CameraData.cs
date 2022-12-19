@@ -24,6 +24,11 @@ namespace Assignment8
             Direction.Y = MathF.Sin(rotation.X);
             Direction.Z = MathF.Cos(rotation.X) * MathF.Sin(rotation.Y);
             Direction.Normalize();
+            UpdateMatrix();
+        }
+
+        public void UpdateMatrix()
+        {
             var right = Vector3.Cross(Direction, Vector3.UnitY).Normalized();
             Up = Vector3.Cross(right, Direction).Normalized();
             ViewToWorld = new Matrix3(right, Up, Direction);
