@@ -5,7 +5,7 @@
 #define HALF_PI (PI / 2.0)
 #define FAR_DISTANCE 1000000.0
 #define K_EPSILON 1e-8
-#define MAX_MESH_SIZE 800
+#define MAX_MESH_SIZE 600
 struct CameraData {
     vec3 Position;
     vec2 ViewportSize;
@@ -282,15 +282,6 @@ bool CastRay(Ray ray, out Hit oHit) {
             }
         }
     }
-    // for (int i = 0; i < MeshCount; i++) {
-    //     if (RayMeshIntersection(ray, Meshes[i], hit)) {
-    //         if (hit.Distance < minDistance) {
-    //             minDistance = hit.Distance;
-    //             hit.Material = Meshes[i].Material;
-    //             oHit = hit;
-    //         }
-    //     }
-    // }
     Material def = Material(vec3(0), vec3(1), 0, 0, 1);
     for (int i = 0; i < MAX_MESH_SIZE; i += 3) {
         if (i == MeshSize)

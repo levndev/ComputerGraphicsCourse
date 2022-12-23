@@ -22,7 +22,14 @@ namespace Assignment8
             };
             using (var window = new Window(GameWindowSettings.Default, nativeWindowSettings))
             {
-                window.Run();
+                try
+                {
+                    window.Run();
+                }
+                catch (Exception e)
+                {
+                    File.WriteAllText($"crash_{DateTime.Now.ToString("HH-mm-ss_dd-MM-yyyy")}.txt", e.ToString());
+                }
             }
         }
     }

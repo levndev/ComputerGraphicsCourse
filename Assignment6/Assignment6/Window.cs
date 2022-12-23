@@ -126,26 +126,6 @@ namespace Assignment6
             var regularDodecahedron = new MeshRenderer(new Transform(), material, regularDodecahedronMesh);
             var regularTetrahedron = new MeshRenderer(new Transform(), material, regularTetrahedronMesh);
             var regularIcosahedron = new MeshRenderer(new Transform(), material, regularIcosahedronMesh);
-            //cube.Func = new Action<Transform>((t) =>
-            //{
-            //    t.Position = new Vector3(2 * MathF.Cos(TotalTime - MathF.PI / 2f), t.Position.Y, 2 * MathF.Sin(TotalTime - MathF.PI / 2f));
-            //});
-            //pyramid.Func = new Action<Transform>((t) =>
-            //{
-            //    t.Position = new Vector3(2 * MathF.Cos(TotalTime), t.Position.Y, 2 * MathF.Sin(TotalTime));
-            //});
-            //trapezoid.Func = new Action<Transform>((t) =>
-            //{
-            //    t.Position = new Vector3(2 * MathF.Cos(TotalTime + MathF.PI), t.Position.Y, 2 * MathF.Sin(TotalTime + MathF.PI));
-            //});
-            //octahedron.Func = new Action<Transform>((t) =>
-            //{
-            //    //t.Position = new Vector3(2 * MathF.Cos(TotalTime + MathF.PI / 2f), t.Position.Y, 2 * MathF.Sin(TotalTime + MathF.PI / 2f));
-            //});
-            //regularPyramid.Func = new Action<Transform>((t) =>
-            //{
-            //    t.Position = new Vector3(2 * MathF.Cos(TotalTime + MathF.PI / 2f), t.Position.Y, 2 * MathF.Sin(TotalTime + MathF.PI / 2f));
-            //});
             sphere.Func = new Action<Transform>((t) =>
             {
                 t.Position = new Vector3(MathF.Cos(TotalTime + MathF.PI / 2f), t.Position.Y, MathF.Sin(TotalTime + MathF.PI / 2f));

@@ -13,7 +13,9 @@ namespace Assignment8
         public Vector3 Position;
         public Vector2 ViewportSize;
         public float FOV;
+        [IgnoreInShader]
         public Vector3 Direction;
+        [IgnoreInShader]
         public Vector3 Up;
         public Matrix3 ViewToWorld;
         public void SetRotation(Vector2 rotation)

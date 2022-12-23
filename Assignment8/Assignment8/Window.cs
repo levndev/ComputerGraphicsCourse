@@ -1,35 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
-using OpenTK.Windowing;
-using OpenTK.Windowing.Common;
+﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Diagnostics;
-using StbImageSharp;
-using System.IO;
 using Dear_ImGui_Sample;
 using ImGuiNET;
 using System.Drawing;
-using System.Net.WebSockets;
-using Assimp;
-using Assimp.Configs;
-using Assimp.Unmanaged;
-using static System.Formats.Asn1.AsnWriter;
-using System.Xml.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Assignment8
 {
     public class Window : GameWindow
     {
         private Shader ptShader;
-        private Shader debugShader;
         private Shader postProcessShader;
         private int VAO;
         private Framebuffer framebuffer;
@@ -43,8 +26,6 @@ namespace Assignment8
         private bool AccumulateFrames = true;
         private int AccumulatedFrames = 0;
         private bool ClearAccumulator = false;
-        private bool Debug = false;
-        private Texture Skybox;
         ImGuiController _controller;
         private bool ShowSettings = true;
         private const int DefaultSamples = 8;
@@ -70,7 +51,6 @@ namespace Assignment8
             base.OnLoad();
             VSync = VSyncMode.Adaptive;
             ptShader = new Shader("Shaders/ptShader.vert", "Shaders/ptShader.frag");
-            debugShader = new Shader("Shaders/debug.vert", "Shaders/debug.frag");
             postProcessShader = new Shader("Shaders/postProcess.vert", "Shaders/postProcess.frag");
             //StbImage.stbi_set_flip_vertically_on_load(1);
             var defaultSkybox = Texture.LoadCubemap(new string[] { "Textures/right.jpg",
@@ -380,7 +360,7 @@ namespace Assignment8
                             if (ImGui.SliderFloat("Light strength B", ref (s.Boxes[0] as Box).Material.Emittance.Z, 0, 30))
                                 result = true;
                         }
-                        
+
                         return result;
                     },
                     CustomSettings =
@@ -1454,27 +1434,13 @@ namespace Assignment8
                 GL.Clear(ClearBufferMask.ColorBufferBit);
                 samples = MoveSamples;
             }
-            if (Debug)
-            {
-                debugShader.Use();
-                debugShader.SetVector3("uPosition", Camera.Position);
-                debugShader.SetVector2("uViewportSize", Size);
-                debugShader.SetVector3("uDirection", Camera.Direction);
-                debugShader.SetVector3("uUp", Camera.Up);
-                debugShader.SetFloat("uFOV", Camera.FOV);
-                debugShader.SetInt("uSamples", samples);
-                debugShader.SetFloat("uTime", (float)stopwatch.Elapsed.TotalSeconds);
-            }
-            else
-            {
-                ptShader.Use();
-                ptShader.SetStruct(Camera, "Camera");
-                ptShader.SetStruct(PathTracingSettings, "Settings");
-                ptShader.SetInt("Samples", samples);
-                var timeSeed = (float)stopwatch.Elapsed.TotalSeconds;
-                Title = timeSeed.ToString();
-                ptShader.SetFloat("Time", timeSeed);
-            }
+            ptShader.Use();
+            ptShader.SetStruct(Camera, "Camera");
+            ptShader.SetStruct(PathTracingSettings, "Settings");
+            ptShader.SetInt("Samples", samples);
+            var timeSeed = (float)stopwatch.Elapsed.TotalSeconds;
+            Title = timeSeed.ToString();
+            ptShader.SetFloat("Time", timeSeed);
             GL.BindVertexArray(VAO);
             GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, 6);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -1512,7 +1478,7 @@ namespace Assignment8
                 if (CursorState == CursorState.Grabbed)
                     windowFlags |= ImGuiWindowFlags.NoMouseInputs;
                 ImGui.Begin("Settings", windowFlags);
-                ImGui.Text("C - show/hide cursor");
+                ImGui.Text("C - show/hide cursor\nEsc - quit\nWASD, ctrl, space - move\nleft | right - change scenes");
                 ImGui.Text($"FPS - {(1f / time).ToString("0.0")}");
                 ImGui.SliderInt("Mouse sensitivity", ref MouseSensitivity, 1, 10);
                 ImGui.SliderFloat("Movement speed", ref CameraMoveSpeed, 0.1f, 10f);
@@ -1524,29 +1490,13 @@ namespace Assignment8
                 ImGui.SliderInt("Samples when moving", ref MoveSamples, 1, 32);
                 ImGui.SliderInt("Blur Kernel offset", ref PostProcessingSettings.KernelOffsetDivisor, 1, 30, "%d", ImGuiSliderFlags.AlwaysClamp);
                 ImGui.SliderInt("Gamma", ref PostProcessingSettings.Gamma, 1, 40, "%d", ImGuiSliderFlags.AlwaysClamp);
-                if (ImGui.Button("Reset frame accumulator"))
-                    ClearAccumulator = true;
-                ImGui.BeginGroup();
-                if (ImGui.Button("Previous scene"))
-                {
-                    ChangeSceneLeft();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Next Scene"))
-                {
-                    ChangeSceneRight();
-                }
-                ImGui.EndGroup();
                 if (ImGui.Button("Skybox light"))
                 {
                     PathTracingSettings.UseSkyboxForLighting = !PathTracingSettings.UseSkyboxForLighting;
                     ClearAccumulator = true;
                 }
-                if (ImGui.Button("Debug"))
-                {
-                    Debug = !Debug;
-                    ClearAccumulator = true;
-                }
+                
+                ImGui.Text("High quality mode");
                 ImGui.SliderInt("High quality mode samples", ref HighQualityModeSamples, 1, 500);
                 ImGui.SliderInt("High quality mode depth", ref HighQualityModeDepth, 1, 64, "%d");
                 ImGui.SliderInt("High quality mode iterations", ref HighQualityModeIterations, 1, 1000, "%d");
@@ -1559,12 +1509,33 @@ namespace Assignment8
                     ClearAccumulator = true;
                     HighQualityModeDate = DateTime.Now;
                 }
+                ImGui.BeginGroup();
+                ImGui.Text("Misc");
+                if (ImGui.Button("Reset frame accumulator"))
+                    ClearAccumulator = true;
+                if (ImGui.Button("Fullscreen"))
+                {
+                    if (WindowState != WindowState.Fullscreen)
+                        WindowState = WindowState.Fullscreen;
+                    else
+                        WindowState = WindowState.Maximized;
+                }
                 if (ImGui.Button("Save image"))
                 {
                     SaveScreenshot(DateTime.Now.ToString("HH-mm-ss_dd-MM-yyyy"));
                 }
                 if (ImGui.Button("Close app"))
                     Close();
+                ImGui.EndGroup();
+                if (ImGui.Button("Previous scene"))
+                {
+                    ChangeSceneLeft();
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Next Scene"))
+                {
+                    ChangeSceneRight();
+                }
                 if (Scenes[CurrentScene].OnGUI != null)
                 {
                     ImGui.Text("Current scene settings");

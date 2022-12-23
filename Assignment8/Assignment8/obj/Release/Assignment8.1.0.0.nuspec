@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Assignment8</id>
+    <version>1.0.0</version>
+    <authors>Assignment8</authors>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework="net6.0">
+        <dependency id="AssimpNet" version="4.1.0" exclude="Build,Analyzers" />
+        <dependency id="ImGui.NET" version="1.88.0" exclude="Build,Analyzers" />
+        <dependency id="OpenTK" version="4.7.5" exclude="Build,Analyzers" />
+        <dependency id="StbImageSharp" version="2.27.13" exclude="Build,Analyzers" />
+        <dependency id="System.Drawing.Common" version="7.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\Workspace\ComputerGraphicsCourse\Assignment8\Assignment8\bin\Release\net6.0\Assignment8.runtimeconfig.json" target="lib\net6.0\Assignment8.runtimeconfig.json" />
+    <file src="E:\Workspace\ComputerGraphicsCourse\Assignment8\Assignment8\bin\Release\net6.0\Assignment8.dll" target="lib\net6.0\Assignment8.dll" />
+  </files>
+</package>

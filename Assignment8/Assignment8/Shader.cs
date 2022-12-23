@@ -29,13 +29,13 @@ namespace Assignment8
         {
             var vertexShaderSource = PreProcessShader(VertexShaderPath);
             VertexShaderText = vertexShaderSource;
-            File.WriteAllText("Shaders/PreProcess/vertexShaderProcessed.vert", vertexShaderSource);
+            //File.WriteAllText("Shaders/PreProcess/vertexShaderProcessed.vert", vertexShaderSource);
             VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, vertexShaderSource);
             CompileShader(VertexShader, vertexShaderSource);
             var fragmentShaderSource = PreProcessShader(FragmentShaderPath);
             FragmentShaderText = fragmentShaderSource;
-            File.WriteAllText("Shaders/PreProcess/fragmentShaderProcessed.frag", fragmentShaderSource);
+            //File.WriteAllText("Shaders/PreProcess/fragmentShaderProcessed.frag", fragmentShaderSource);
             FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(FragmentShader, fragmentShaderSource);
             CompileShader(FragmentShader, fragmentShaderSource);

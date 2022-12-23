@@ -445,8 +445,8 @@ namespace Assignment6
         }
         public static Mesh Cylinder(int sides, float topRadius, float bottomRadius, float topY =0.5f, float bottomY = -0.5f, Vector3? offset = null)
         {
-            var top = new Vector3(0, topY, 0) + offset ?? Vector3.Zero;
-            var bottom = new Vector3(0, bottomY, 0) + offset ?? Vector3.Zero;
+            var top = new Vector3(0, topY, 0) + (offset ?? Vector3.Zero);
+            var bottom = new Vector3(0, bottomY, 0) + (offset ?? Vector3.Zero);
             var result = new List<float>();
             for (var i = 0; i < sides; i++)
             {
