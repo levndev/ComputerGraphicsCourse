@@ -18,14 +18,14 @@
 <img src="Screenshots/6/1.PNG" height="300">
 ### Assignment8 - Трассировка путей в шейдере на GLSL
 Скриншоты:
-<img src="Screenshots/8/1.PNG">
-<img src="Screenshots/8/2.PNG">
-<img src="Screenshots/8/3.PNG">
-<img src="Screenshots/8/4.PNG">
-<img src="Screenshots/8/5.PNG">
-<img src="Screenshots/8/6.PNG">
-<img src="Screenshots/8/7.PNG">
-<img src="Screenshots/8/8.PNG">
-<img src="Screenshots/8/9.PNG">
-<img src="Screenshots/8/10.PNG">
-<img src="Screenshots/8/11.PNG">
+<img src="Screenshots/8/1.png">
+<img src="Screenshots/8/2.png">
+<img src="Screenshots/8/3.png">
+<img src="Screenshots/8/4.png">
+<img src="Screenshots/8/5.png">
+<img src="Screenshots/8/6.png">
+<img src="Screenshots/8/7.png">
+<img src="Screenshots/8/8.png">
+<img src="Screenshots/8/9.png">
+<img src="Screenshots/8/10.png">
+<img src="Screenshots/8/11.png">
